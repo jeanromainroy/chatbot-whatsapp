@@ -1,0 +1,5 @@
+package-lock.json
+.DS_Store
+public/build/
+node_modules/
+server/config.js
