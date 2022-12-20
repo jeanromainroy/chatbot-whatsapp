@@ -1,33 +1,76 @@
 'use strict';
 
-// import libs
-import { request_POST } from './scripts/helper.js';
-import { return_locale_date_now_in_ISO_format } from './scripts/dt.js';
-
 // import config
-import { APP_NAME, ENDPOINT_PROMPT, REFRESH_MS } from './env.js';
+import { APP_NAME, REFRESH_MS, VERIFIER_MS } from './env.js';
+
+// import libs
+import { sleep } from './libs/system.js';
+import { ChatBot } from './scripts/chatbot.js';
 
 // process var
-let post_ids_processed = new Set();
-
-// date on startup
-const date_startup = return_locale_date_now_in_ISO_format();
-const year_startup = date_startup['year'];
-const month_startup = date_startup['month'];
-const day_startup = date_startup['day'];
-const hours_startup = date_startup['hours'];
-const minutes_startup = date_startup['minutes'];
+let already_started = false;
+let counter = 0;
 
 
-chrome.tabs.onActivated.addListener(async function(info) {
+// helper function to send messages to injected scripts
+async function sendMessage(tabId, messageType, data = null){
+    return chrome.tabs.sendMessage(tabId, { type: messageType, data: data }, null);
+}
 
-    // define helper function
-    async function sendMessage(messageType){
-        return chrome.tabs.sendMessage(info.tabId, { type: messageType }, null);
+
+async function start(tabId) {
+
+    // init bot
+    const chatbot = new ChatBot(tabId);
+
+    // regurlaly request conversation from convo
+    while(true) {
+
+        // wait a bit
+        await sleep(REFRESH_MS);
+
+        // run
+        await chatbot.run();
+
+        // increment
+        counter = ( counter + 1 ) % 100;
     }
+}
+
+
+async function monitor(tabId) {
+
+    // init proc var
+    let previous_value = 0;
+    let frozen_counter = 0;
+
+    // start monitoring
+    setInterval(() => {
+
+        // if frozen
+        if (counter === previous_value) {
+            frozen_counter += 1;
+        }
+
+        // if more than X frozen, means the thing exited
+        if (frozen_counter > 3) {
+            frozen_counter = 0;
+            console.log(`${APP_NAME} - restarting chatbot`);
+            start(tabId);
+        }
+        
+    }, VERIFIER_MS);
+}
+
+
+
+chrome.tabs.onUpdated.addListener(async function(tabId) {
+
+    // check flag
+    if (already_started) return;
 
     // page url
-    const url = await sendMessage("currentPage");
+    const url = await sendMessage(tabId, "currentPage");
 
     // check
     if (url === undefined || url === null) return;
@@ -35,57 +78,13 @@ chrome.tabs.onActivated.addListener(async function(info) {
     // check if supported
     if(!url.includes('web.whatsapp.com')) return;
 
-    // regurlaly request conversation from convo
-    setInterval(async () => {
-        console.log(`${APP_NAME} - running`);
+    // set flag
+    already_started = true;
 
-        // inject scraper
-        try {
-            await sendMessage("startScrape");
-        } catch (err) {
-            return;
-        }
+    // start chatbot
+    start(tabId);
 
-        // request conversation from injected script
-        let response = null;
-        try {
-            response = await sendMessage('requestConversation');
-        } catch (err) {
-            return;
-        }
-
-        // check
-        if (response === undefined || response === null || !Array.isArray(response)) return;
-
-        // append
-        response.forEach(async (post) => {
-
-            // destructure
-            const { post_id, sender, text, year, month, day, hours, minutes } = post;
-
-            // skip if conversation already has this post
-            if (post_ids_processed.has(post_id)) return;
-
-            // add
-            post_ids_processed.add(post_id);
-
-            // skip if message is older than app startup
-            if (year < year_startup) return;
-            if (year === year_startup) { if (month < month_startup) return; }
-            if (year === year_startup && month === month_startup) { if (day < day_startup) return; }
-            if (year === year_startup && month === month_startup && day === day_startup) { if (hours < hours_startup) return; }
-            if (year === year_startup && month === month_startup && day === day_startup && hours === hours_startup) { if (minutes < minutes_startup) return; }
-
-            // build body
-            const body = { 'sender': sender, 'text': text };
-
-            // send to server
-            const response = await request_POST(ENDPOINT_PROMPT, body);
-
-            // log
-            console.log(response);
-        })
-
-    }, REFRESH_MS);
+    // monitor chatbot
+    monitor();
 });
 

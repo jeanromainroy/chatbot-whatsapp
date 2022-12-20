@@ -138,6 +138,11 @@ export class Extractor {
         // extract post ids
         const post_ids = this.get_post_ids(html_str_cleaned);
 
+        // check
+        if (post_ids === undefined || post_ids === null || !Array.isArray(post_ids)) return {
+            'posts': dataframe
+        };
+
         // extract posts
         const posts = post_ids.map(post_id => this.get_post_by_id(html_str_cleaned, post_id)).filter(d => d !== undefined && d !== null);
 

@@ -3,11 +3,15 @@
 // import scripts
 import { APP_NAME } from './env.js';
 import { Extractor } from './scripts/extractor.js';
+import { sleep } from './libs/system.js';
 
 // process var
 let already_extracted_post_ids = new Set();
 let nbr_of_posts_scraped = 0;
 let conversation = [];
+
+// init instance of extractor
+const extractor = new Extractor();
 
 
 function get_current_url() {
@@ -22,9 +26,6 @@ async function scrape(){
 
     // check
     if (!url.includes('web.whatsapp.com')) return;
-
-    // init instance of extractor
-    const extractor = new Extractor();
 
     // grab page HTML
     const html_str = document.body.innerHTML;
@@ -57,6 +58,44 @@ async function scrape(){
 }
 
 
+async function post(message){
+    
+    // select the textarea
+    const textbox = document.querySelector('footer').querySelector('[role="textbox"]');
+
+    // focus
+    textbox.focus(); 
+
+    // paste text
+    // TODO: FIX DEPRECATED
+    let pasted = true;
+    try {
+        if (!document.execCommand("insertText", false, message)) {
+            pasted = false;
+        }
+    } catch (err) {
+        console.error(err);
+        pasted = false;
+    }
+
+    // check if successful
+    if (!pasted) {
+        console.error("paste unsuccessful, execCommand not supported");
+        return;
+    }
+
+    // wait a bit
+    await sleep(300);
+
+    // select the send button
+    const button = document.querySelector('footer').querySelector('button[aria-label="Send"]');
+
+    // trigger send button
+    button.click();
+}
+
+
+
 // message interface
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         switch(message.type) {
@@ -66,13 +105,18 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                 break;
             
             case "startScrape":
-                console.log(`${APP_NAME} - scraping`)
+                // console.log(`${APP_NAME} - scraping`)
                 scrape();
                 break;
             
             case "requestConversation": 
-                console.log(`${APP_NAME} - gpt requested`);
+                // console.log(`${APP_NAME} - gpt requested`);
                 sendResponse(conversation);
+                break;
+
+            case "respondWith": 
+                console.log(`${APP_NAME} - response received`);
+                post(message.data);
                 break;
 
             default:

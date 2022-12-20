@@ -26,10 +26,20 @@ app.post(
         console.log(`${sender}: ${text}`);
 
         // run
-        // run_chatgpt()
+        // const response = await run_chatgpt(text);
+
+        // // log
+        // console.log(`Response: ${response}\n`);
+        
+        // // success
+        // return res.status(200).send({ message: response })
+
+        await new Promise(resolve => {
+            setTimeout(() => { resolve() }, 3000);
+        })
 
         // success
-        return res.status(200).send({ message: 'image saved' })
+        return res.status(200).send({ message: 'Bnjour salut' })
     }
 )
 

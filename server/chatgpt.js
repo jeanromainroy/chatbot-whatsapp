@@ -28,8 +28,9 @@ export async function run(prompt){
     try {
         results = data.choices.map(d => d['text'].trim());
     } catch (err) {
+        console.error(err);
         return null;
     }
 
-    return results;
+    return results[0];
 }

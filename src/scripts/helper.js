@@ -12,7 +12,13 @@ export async function request_POST(url, body) {
     }
 
     // send request
-    const response = await fetch(url, opts);
+    let response = null;
+    try {
+        response = await fetch(url, opts);
+    } catch(err) {
+        console.error(err);
+        return null;
+    }
 
     // data
     const data = await response.json();
