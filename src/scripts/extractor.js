@@ -100,8 +100,15 @@ export class Extractor {
         text = text.trim();
 
         // parse
-        const meta_parsed = [...[...text.matchAll(regex_parse_post_meta)][0]];
-
+        let meta_parsed = null;
+        try {
+            meta_parsed = [...text.matchAll(regex_parse_post_meta)];
+            meta_parsed = [...meta_parsed[0]];
+        } catch (err) {
+            console.log(meta_parsed)
+            return null;
+        }
+        
         // split
         const sender = meta_parsed[7];
         const year = +meta_parsed[6];

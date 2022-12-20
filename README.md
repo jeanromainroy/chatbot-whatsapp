@@ -6,7 +6,7 @@ Served through a browser extension, this chatbot can be used to converse through
 
 1. Allocate a server and connect to it using RDP
 
-2. Install [Chrome](https://www.google.com/chrome/) and [Node](https://nodejs.org/en/download/) 
+2. Install [Chrome](https://www.google.com/chrome/), [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [Node](https://nodejs.org/en/download/) 
 
 3. Clone this repository
 
