@@ -174,25 +174,7 @@ export class Extractor {
         // parse 
         const meta_parsed = this.parse_meta(text);
 
-        // check
-        if (meta_parsed === null) return null;
-        
-        // split
-        const sender = meta_parsed[7];
-        const year = +meta_parsed[6];
-        const month = +meta_parsed[5];
-        const day = +meta_parsed[4];
-        const hours = meta_parsed[3] === 'pm' ? (+meta_parsed[1])+12 : +meta_parsed[1];
-        const minutes = +meta_parsed[2];
-
-        return {
-            "year": year,
-            "month": month,
-            "day": day,
-            "hours": hours,
-            "minutes": minutes,
-            "sender": sender
-        }
+        return meta_parsed;
     }
 
 
