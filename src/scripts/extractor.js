@@ -83,30 +83,71 @@ export class Extractor {
 
     parse_meta(text){
 
-        // init
-        let meta_parsed = null;
-
-        // match
+        // ------- LOCALE #1 -------
         const d1 = text.matchAll(regex_parse_post_meta_1);
-        const d2 = text.matchAll(regex_parse_post_meta_2);
 
-        // check
         if (d1 !== undefined && d1 !== null) {
+
+            // parse
             try {
-                meta_parsed = [...d1];
+                let meta_parsed = [...d1];
                 meta_parsed = [...meta_parsed[0]];
-            } catch (err) { }
-        }
-        if (d2 === undefined || d2 === null) {
-            try {
-                meta_parsed = [...d2];
-                meta_parsed = [...meta_parsed[0]];
+
+                if (meta_parsed !== undefined && meta_parsed !== null && Array.isArray(meta_parsed)) {
+
+                    // destructure
+                    const sender = meta_parsed[7];
+                    const year = +meta_parsed[6];
+                    const month = +meta_parsed[5];
+                    const day = +meta_parsed[4];
+                    const hours = meta_parsed[3] === 'pm' ? (+meta_parsed[1])+12 : +meta_parsed[1];
+                    const minutes = +meta_parsed[2];
+
+                    return {
+                        "year": year,
+                        "month": month,
+                        "day": day,
+                        "hours": hours,
+                        "minutes": minutes,
+                        "sender": sender
+                    }
+                }
+
             } catch (err) { }
         }
 
-        if (meta_parsed === undefined || meta_parsed === null || !Array.isArray(meta_parsed)) return null;
 
-        return meta_parsed;
+        // ------- LOCALE #2 -------
+        const d2 = text.matchAll(regex_parse_post_meta_2);
+        
+        if (d2 !== undefined && d2 !== null) {
+            try {
+                let meta_parsed = [...d2];
+                meta_parsed = [...meta_parsed[0]];
+
+                if (meta_parsed !== undefined && meta_parsed !== null && Array.isArray(meta_parsed)) {
+
+                    // destructure
+                    const sender = meta_parsed[6];
+                    const year = +meta_parsed[5];
+                    const month = +meta_parsed[4];
+                    const day = +meta_parsed[3];
+                    const hours = +meta_parsed[1];
+                    const minutes = +meta_parsed[2];
+
+                    return {
+                        "year": year,
+                        "month": month,
+                        "day": day,
+                        "hours": hours,
+                        "minutes": minutes,
+                        "sender": sender
+                    }
+                }
+            } catch (err) { }
+        }
+
+        return null;
     }
 
 
