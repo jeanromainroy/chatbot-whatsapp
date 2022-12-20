@@ -1,7 +1,7 @@
 'use strict';
 
 // import config
-import { ENDPOINT_PROMPT } from '../env.js';
+import { APP_NAME, ENDPOINT_PROMPT } from '../env.js';
 
 // import libs
 import { request_POST } from './helper.js';
@@ -93,6 +93,7 @@ export class ChatBot {
 
 
     async run(){
+        console.log(`${APP_NAME} - running`)
 
         // request conversation
         const conversation = await this.request_conversation();

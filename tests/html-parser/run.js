@@ -5,7 +5,7 @@ import { readFileSync } from 'fs';
 import { Extractor } from '../../src/scripts/extractor.js';
 
 // config
-const path = './tests/html-parser/example.html';
+const path = './tests/html-parser/locale2.html';
 
 
 async function main() {
