@@ -20,6 +20,12 @@ export async function request_POST(url, body) {
         return null;
     }
 
+    // check status
+    if (response.status !== 200) {
+        console.error('invalid status');
+        return null;
+    }
+
     // data
     const data = await response.json();
 

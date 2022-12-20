@@ -43,3 +43,10 @@ Served through a browser extension, this chatbot can be used to converse through
     npm run start
 
 15. Type something in the conversation and look at the terminal to see if the server is functionning properly
+
+
+## Whitelist
+
+By default the chatbot will refuse to chat with unknown numbers. Set the authorized contact names in the [config file](./server/config.js).
+
+

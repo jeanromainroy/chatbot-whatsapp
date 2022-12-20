@@ -12,10 +12,16 @@ import { sleep } from '../libs/system.js';
 export class ChatBot {
 
     constructor(tabId){
+        
+        // properties
         this.tabId = tabId;
+        this.date_checkpoint = null;
         this.post_ids_processed = new Set();
-        this.date_startup = return_locale_date_now_in_ISO_format();
+
+        // init
+        this.set_checkpoint_datetime();
     }
+
 
     // helper function to send messages to injected scripts
     async sendMessage(messageType, data = null){
@@ -23,18 +29,24 @@ export class ChatBot {
     }
 
 
+    // sets the checkpoint datetime
+    set_checkpoint_datetime() {
+        this.date_checkpoint = return_locale_date_now_in_ISO_format();
+    }
+
+
     // checks if post is valid and new
-    was_post_published_after_startup(post){
+    was_post_published_after_checkpoint(post){
 
         // destructure
         const { year, month, day, hours, minutes } = post;
 
-        // check if message is older than app startup
-        if (year < this.date_startup['year']) return false;
-        if (year === this.date_startup['year']) { if (month < this.date_startup['month']) return false; }
-        if (year === this.date_startup['year'] && month === this.date_startup['month']) { if (day < this.date_startup['day']) return false; }
-        if (year === this.date_startup['year'] && month === this.date_startup['month'] && day === this.date_startup['day']) { if (hours < this.date_startup['hours']) return false; }
-        if (year === this.date_startup['year'] && month === this.date_startup['month'] && day === this.date_startup['day'] && hours === this.date_startup['hours']) { if (minutes < this.date_startup['minutes']) return false; }
+        // check if message is older than app checkpoint
+        if (year < this.date_checkpoint['year']) return false;
+        if (year === this.date_checkpoint['year']) { if (month < this.date_checkpoint['month']) return false; }
+        if (year === this.date_checkpoint['year'] && month === this.date_checkpoint['month']) { if (day < this.date_checkpoint['day']) return false; }
+        if (year === this.date_checkpoint['year'] && month === this.date_checkpoint['month'] && day === this.date_checkpoint['day']) { if (hours < this.date_checkpoint['hours']) return false; }
+        if (year === this.date_checkpoint['year'] && month === this.date_checkpoint['month'] && day === this.date_checkpoint['day'] && hours === this.date_checkpoint['hours']) { if (minutes < this.date_checkpoint['minutes']) return false; }
 
         return true;
     }
@@ -94,14 +106,14 @@ export class ChatBot {
             // destructure
             const { post_id, sender, text } = post;
 
+            // check if post was published after app checkpoint
+            if(!this.was_post_published_after_checkpoint(post)) continue;
+
             // check if post has already been processed
             if (this.has_post_already_been_processed(post)) continue;
 
             // add
             this.post_ids_processed.add(post_id);
-
-            // check if post was published after app startup
-            if(!this.was_post_published_after_startup(post)) continue;
 
             // build body
             const body = { 'sender': sender, 'text': text };
@@ -119,5 +131,8 @@ export class ChatBot {
                 console.error(err);
             }
         }
+
+        // update checkpoint time
+        this.set_checkpoint_datetime();
     }
 }
