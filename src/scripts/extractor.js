@@ -8,7 +8,9 @@ const regex_post_ids = new RegExp(`data-id="(.*?)"`, 'g');
 const regex_post_by_id = (post_id) => { return new RegExp(`data-id="${post_id}".*?>.*?</div></div></div></div></div>`, 'g') };
 const regex_post_text = new RegExp(`<span>(.*?)</span>`, 'g');
 const regex_post_meta = new RegExp(`data-pre-plain-text="(.*?)"`, 'g');
-const regex_parse_post_meta = /\[(.*?):(.*?) (.*?), (.*?)\/(.*?)\/(.*?)\] (.*?):/g;
+
+const regex_parse_post_meta_1 = /\[(.*?):(.*?) (.*?), (.*?)\/(.*?)\/(.*?)\] (.*?):/g;
+const regex_parse_post_meta_2 = /\[(.*?):(.*?), (.*?)\/(.*?)\/(.*?)\] (.*?):/g;
 
 
 export class Extractor {
@@ -79,6 +81,35 @@ export class Extractor {
     }
 
 
+    parse_meta(text){
+
+        // init
+        let meta_parsed = null;
+
+        // match
+        const d1 = text.matchAll(regex_parse_post_meta_1);
+        const d2 = text.matchAll(regex_parse_post_meta_2);
+
+        // check
+        if (d1 !== undefined && d1 !== null) {
+            try {
+                meta_parsed = [...d1];
+                meta_parsed = [...meta_parsed[0]];
+            } catch (err) { }
+        }
+        if (d2 === undefined || d2 === null) {
+            try {
+                meta_parsed = [...d2];
+                meta_parsed = [...meta_parsed[0]];
+            } catch (err) { }
+        }
+
+        if (meta_parsed === undefined || meta_parsed === null || !Array.isArray(meta_parsed)) return null;
+
+        return meta_parsed;
+    }
+
+
     get_post_meta(html_str_post) {
         
         // run regex
@@ -99,15 +130,11 @@ export class Extractor {
         // trim
         text = text.trim();
 
-        // parse
-        let meta_parsed = null;
-        try {
-            meta_parsed = [...text.matchAll(regex_parse_post_meta)];
-            meta_parsed = [...meta_parsed[0]];
-        } catch (err) {
-            console.log(meta_parsed)
-            return null;
-        }
+        // parse 
+        const meta_parsed = this.parse_meta(text);
+
+        // check
+        if (meta_parsed === null) return null;
         
         // split
         const sender = meta_parsed[7];
