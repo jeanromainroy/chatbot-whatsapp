@@ -31,7 +31,10 @@ async function scrape(){
     const html_str = document.body.innerHTML;
 
     // extract posts
-    const { posts } = await extractor.extract_posts(html_str, already_extracted_post_ids);
+    const posts = await extractor.extract_posts(html_str, already_extracted_post_ids);
+
+    // check
+    if (posts === undefined || posts === null || !Array.isArray(posts)) return;
 
     // go through posts
     posts.forEach(post => {
