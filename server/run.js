@@ -35,13 +35,6 @@ app.post(
             return res.status(401).send({ message: 'sender unauthorized' });
         }
 
-        // await new Promise(resolve => {
-        //     setTimeout(() => { resolve() }, 300);
-        // })
-
-        // // success
-        // return res.status(200).send({ message: 'Bnjour salut' })
-
         // run
         const response = await run_chatgpt(text);
 

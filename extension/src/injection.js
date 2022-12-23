@@ -1,9 +1,9 @@
 'use strict';
 
 // import scripts
-import { APP_NAME } from '../config.js';
+import { APP_NAME } from '../../config.js';
 import { Extractor } from './scripts/extractor.js';
-import { sleep } from '../libs/system.js';
+import { sleep } from './libs/system.js';
 
 // process var
 let already_extracted_post_ids = new Set();

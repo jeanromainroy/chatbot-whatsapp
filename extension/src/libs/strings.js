@@ -55,9 +55,6 @@ export function clean_text(text) {
     // remove the < >
     text = text.replaceAll(/<.*?>/g, " ")
 
-    // remove all new line
-    text = text.replaceAll("\n", " ");
-
     // remove double whitespaces
     for(let i=0 ; i<5 ; i++){
         text = text.replaceAll("  ", " ");
@@ -65,8 +62,6 @@ export function clean_text(text) {
 
     // remove special characters
     text = text.replaceAll(/"/g, '');
-    text = text.replaceAll(/\*/g, '');
-    text = text.replaceAll(/\_/g, '');
 
     // trim
     text = text.trim();

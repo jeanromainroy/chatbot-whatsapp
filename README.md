@@ -31,7 +31,7 @@ Served through a browser extension, this chatbot can be used to converse through
 
 8. Activate "Developer" mode
 
-9. Click on "Load unpacked" and navigate to this [public](./public/) directory
+9. Click on "Load unpacked" and navigate to this [extension public](./extension/public/) directory
 
 10. Restart browser
 

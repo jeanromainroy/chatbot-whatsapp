@@ -5,11 +5,11 @@ import json from '@rollup/plugin-json';
 
 export default [
     {
-        input: "src/background.js",
+        input: "extension/src/background.js",
         output: {
             sourcemap: true,
             format: "iife",
-            file: "public/build/background.js",
+            file: "extension/public/build/background.js",
         },
         plugins: [resolve(), commonjs()],
         watch: {
@@ -17,11 +17,11 @@ export default [
         },
     },
     {
-        input: "src/injection.js",
+        input: "extension/src/injection.js",
         output: {
             sourcemap: true,
             format: "iife",
-            file: "public/build/injection.js",
+            file: "extension/public/build/injection.js",
         },
         plugins: [json({ compact: true }), resolve(), commonjs()],
         watch: {

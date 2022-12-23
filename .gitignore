@@ -3,3 +3,4 @@ package-lock.json
 public/build/
 node_modules/
 config.js
+extension/public/build/*

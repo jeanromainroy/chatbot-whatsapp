@@ -1,12 +1,12 @@
 'use strict';
 
 // import config
-import { APP_NAME, ENDPOINT_PROMPT } from '../../config.js';
+import { APP_NAME, ENDPOINT_PROMPT } from '../../../config.js';
 
 // import libs
-import { request_POST } from '../../libs/http.js';
-import { return_locale_date_now_in_ISO_format } from '../../libs/dt.js';
-import { sleep } from '../../libs/system.js';
+import { request_POST } from '../libs/http.js';
+import { return_locale_date_now_in_ISO_format } from '../libs/dt.js';
+import { sleep } from '../libs/system.js';
 
 
 export class ChatBot {
@@ -99,14 +99,17 @@ export class ChatBot {
         // check flag
         if (this.running) return;
 
+        // set flag
+        this.running = true;
+
         // request conversation
         const conversation = await this.request_conversation();
 
         // check
-        if (conversation === null) return;
-
-        // set flag
-        this.running = true;
+        if (conversation === null) {
+            this.running = false;
+            return;
+        }
 
         // append
         for (const post of conversation){

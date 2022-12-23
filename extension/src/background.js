@@ -1,14 +1,13 @@
 'use strict';
 
 // import config
-import { APP_NAME, REFRESH_MS } from '../config.js';
+import { APP_NAME, REFRESH_MS } from '../../config.js';
 
 // import libs
 import { ChatBot } from './scripts/chatbot.js';
 
 // process var
 let already_started = false;
-let counter = 0;
 
 
 // helper function to send messages to injected scripts
