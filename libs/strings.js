@@ -63,8 +63,10 @@ export function clean_text(text) {
         text = text.replaceAll("  ", " ");
     }
 
-    // remove the "
-    text = text.replaceAll(/"/g, '')
+    // remove special characters
+    text = text.replaceAll(/"/g, '');
+    text = text.replaceAll(/\*/g, '');
+    text = text.replaceAll(/\_/g, '');
 
     // trim
     text = text.trim();

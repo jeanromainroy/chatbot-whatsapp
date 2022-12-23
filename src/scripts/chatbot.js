@@ -17,6 +17,7 @@ export class ChatBot {
         this.tabId = tabId;
         this.date_checkpoint = null;
         this.post_ids_processed = new Set();
+        this.running = false;
 
         // init
         this.set_checkpoint_datetime();
@@ -95,11 +96,17 @@ export class ChatBot {
     async run(){
         console.log(`${APP_NAME} - running`)
 
+        // check flag
+        if (this.running) return;
+
         // request conversation
         const conversation = await this.request_conversation();
 
         // check
         if (conversation === null) return;
+
+        // set flag
+        this.running = true;
 
         // append
         for (const post of conversation){
@@ -132,5 +139,8 @@ export class ChatBot {
                 console.error(err);
             }
         }
+
+        // set flag
+        this.running = false;
     }
 }

@@ -72,7 +72,7 @@ async function clear(){
     // select all 
     try {
         document.execCommand("selectAll", false, null);
-        document.execCommand("delete", false, null);
+        document.execCommand("cut", false, null);
     } catch (err) {
         console.error(`${APP_NAME} - exec command not supported`)
     }

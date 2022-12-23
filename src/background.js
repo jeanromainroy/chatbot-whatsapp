@@ -32,7 +32,6 @@ async function start(tabId) {
 }
 
 
-
 chrome.tabs.onUpdated.addListener(async function(tabId) {
 
     // check flag
