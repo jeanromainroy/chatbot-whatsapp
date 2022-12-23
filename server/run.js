@@ -1,7 +1,7 @@
 'use strict';
 
 // config
-import { API_PORT, SENDERS_AUTHORIZED } from './config.js';
+import { API_PORT, SENDERS_AUTHORIZED } from '../config.js';
 
 // libs
 import express from 'express';
@@ -45,7 +45,7 @@ app.post(
         // return res.status(200).send({ message: response })
 
         await new Promise(resolve => {
-            setTimeout(() => { resolve() }, 3000);
+            setTimeout(() => { resolve() }, 300);
         })
 
         // success

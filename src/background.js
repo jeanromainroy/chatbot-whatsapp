@@ -1,10 +1,9 @@
 'use strict';
 
 // import config
-import { APP_NAME, REFRESH_MS, VERIFIER_MS } from './env.js';
+import { APP_NAME, REFRESH_MS } from '../config.js';
 
 // import libs
-import { sleep } from './libs/system.js';
 import { ChatBot } from './scripts/chatbot.js';
 
 // process var
@@ -24,42 +23,12 @@ async function start(tabId) {
     const chatbot = new ChatBot(tabId);
 
     // regurlaly request conversation from convo
-    while(true) {
-
-        // wait a bit
-        await sleep(REFRESH_MS);
+    setInterval(async () => {
 
         // run
         await chatbot.run();
 
-        // increment
-        counter = ( counter + 1 ) % 100;
-    }
-}
-
-
-async function monitor(tabId) {
-
-    // init proc var
-    let previous_value = 0;
-    let frozen_counter = 0;
-
-    // start monitoring
-    setInterval(() => {
-
-        // if frozen
-        if (counter === previous_value) {
-            frozen_counter += 1;
-        }
-
-        // if more than X frozen, means the thing exited
-        if (frozen_counter > 3) {
-            frozen_counter = 0;
-            console.log(`${APP_NAME} - restarting chatbot`);
-            start(tabId);
-        }
-        
-    }, VERIFIER_MS);
+    }, REFRESH_MS)
 }
 
 
@@ -83,8 +52,4 @@ chrome.tabs.onUpdated.addListener(async function(tabId) {
 
     // start chatbot
     start(tabId);
-
-    // monitor chatbot
-    monitor(tabId);
 });
-

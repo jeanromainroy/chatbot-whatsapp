@@ -1,7 +1,7 @@
 'use strict';
 
 // import config
-import { APP_NAME, ENDPOINT_PROMPT } from '../env.js';
+import { APP_NAME, ENDPOINT_PROMPT } from '../../config.js';
 
 // import libs
 import { request_POST } from './helper.js';
@@ -132,8 +132,5 @@ export class ChatBot {
                 console.error(err);
             }
         }
-
-        // update checkpoint time
-        this.set_checkpoint_datetime();
     }
 }

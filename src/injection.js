@@ -1,7 +1,7 @@
 'use strict';
 
 // import scripts
-import { APP_NAME } from './env.js';
+import { APP_NAME } from '../config.js';
 import { Extractor } from './scripts/extractor.js';
 import { sleep } from './libs/system.js';
 
@@ -80,15 +80,21 @@ async function post(message){
 
     // check if successful
     if (!pasted) {
-        console.error("paste unsuccessful, execCommand not supported");
+        console.error(`${APP_NAME} - paste unsuccessful, execCommand not supported`);
         return;
     }
 
     // wait a bit
-    await sleep(300);
+    await sleep(500);
 
     // select the send button
     const button = document.querySelector('footer').querySelector('button[aria-label="Send"]');
+
+    // check
+    if (button === undefined || button === null) {
+        console.error(`${APP_NAME} - button not loaded`);
+        return;
+    }
 
     // trigger send button
     button.click();

@@ -2,6 +2,7 @@
 
 Served through a browser extension, this chatbot can be used to converse through WhatsApp.
 
+
 ## Mise-en-place
 
 1. Allocate a server and connect to it using RDP
@@ -10,23 +11,25 @@ Served through a browser extension, this chatbot can be used to converse through
 
 3. Clone this repository
 
-4. Create a config file from the template [config.js.template](./server/config.js.template)
+    git clone https://github.com/jeanromainroy/chatbot-whatsapp.git
 
-5. Set your openai secret key
+4. Create a config file from the template [config.js.template](./config.js.template)
 
-    export const OPENAI_API_KEY = '';
+    cp config.js.template config.js
 
-6. Install npm dependencies
+5. Install npm dependencies
 
     npm i
 
-7. Build chrome extension
+6. Build chrome extension
 
     npm run build
 
-8. Open Chrome and type in the address bar
+7. Open Chrome and type in the address bar
 
     chrome://extensions
+
+8. Activate "Developer" mode
 
 9. Click on "Load unpacked" and navigate to this [public](./public/) directory
 
@@ -34,19 +37,37 @@ Served through a browser extension, this chatbot can be used to converse through
 
 11. Navigate to [WhatsApp Web](https://web.whatsapp.com/)
 
-12. Link your account
+12. Link your account with the browser 
 
 13. Click on the conversation you want to connect the chatbot to
 
-14. In a terminal launch the server
+14. Leave the browser open on this page
+
+
+## Conversational Agent 
+
+We suggest using OpenAI's davinci model as conversational agent
+
+1. Create a paid account with [OpenAI](https://beta.openai.com/)
+
+2. Obtain an API key
+
+3. Set it in your [config](./config.js) file
+
+    export const OPENAI_API_KEY = '';
+
+
+## Running
+
+To launch the server that will be responding to incomming message. Simply open a terminal shell and run,
 
     npm run start
 
-15. Type something in the conversation and look at the terminal to see if the server is functionning properly
+Type something in the conversation and look at the terminal to see if the server is functionning properly
 
 
 ## Whitelist
 
-By default the chatbot will refuse to chat with unknown numbers. Set the authorized contact names in the [config file](./server/config.js).
+By default the chatbot will refuse to chat with unknown numbers. Set the authorized contact names in the [config file](./config.js).
 
-
+    export const SENDERS_AUTHORIZED = ['Alice', 'Bob'];

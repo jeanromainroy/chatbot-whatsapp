@@ -9,8 +9,26 @@ const regex_post_by_id = (post_id) => { return new RegExp(`data-id="${post_id}".
 const regex_post_text = new RegExp(`<span>(.*?)</span>`, 'g');
 const regex_post_meta = new RegExp(`data-pre-plain-text="(.*?)"`, 'g');
 
-const regex_parse_post_meta_1 = /\[(.*?):(.*?) (.*?), (.*?)\/(.*?)\/(.*?)\] (.*?):/g;
-const regex_parse_post_meta_2 = /\[(.*?):(.*?), (.*?)\/(.*?)\/(.*?)\] (.*?):/g;
+const regexes_parse_post_meta = [
+    {
+        "regex": /\[(.*?):(.*?) (.*?), (.*?)\/(.*?)\/(.*?)\] (.*?):/g,
+        "sender": (parsed) => parsed[7],
+        "year": (parsed) => +parsed[6],
+        "month": (parsed) => +parsed[5],
+        "day": (parsed) => +parsed[4],
+        "hours": (parsed) => parsed[3] === 'pm' ? (+parsed[1])+12 : +parsed[1],
+        "minutes": (parsed) => +parsed[2]
+    },
+    {
+        "regex": /\[(.*?):(.*?), (.*?)\/(.*?)\/(.*?)\] (.*?):/g,
+        "sender": (parsed) => parsed[6],
+        "year": (parsed) => +parsed[5],
+        "month": (parsed) => +parsed[4],
+        "day": (parsed) => +parsed[3],
+        "hours": (parsed) => +parsed[1],
+        "minutes": (parsed) => +parsed[2]
+    }    
+]
 
 
 export class Extractor {
@@ -83,68 +101,46 @@ export class Extractor {
 
     parse_meta(text){
 
-        // ------- LOCALE #1 -------
-        const d1 = text.matchAll(regex_parse_post_meta_1);
+        // iterate through locale
+        for (const regex_parse_post_meta of regexes_parse_post_meta) {
 
-        if (d1 !== undefined && d1 !== null) {
+            // match
+            let parsed = text.matchAll(regex_parse_post_meta['regex']);
 
-            // parse
+            // check
+            if (parsed === undefined || parsed === null) continue;
+
+            // try to apply
             try {
-                let meta_parsed = [...d1];
-                meta_parsed = [...meta_parsed[0]];
 
-                if (meta_parsed !== undefined && meta_parsed !== null && Array.isArray(meta_parsed)) {
+                // convert to arr
+                parsed = [...parsed];
+                
+                // get first match
+                parsed = [...parsed[0]];
 
-                    // destructure
-                    const sender = meta_parsed[7];
-                    const year = +meta_parsed[6];
-                    const month = +meta_parsed[5];
-                    const day = +meta_parsed[4];
-                    const hours = meta_parsed[3] === 'pm' ? (+meta_parsed[1])+12 : +meta_parsed[1];
-                    const minutes = +meta_parsed[2];
+                // check
+                if (parsed === undefined || parsed === null || !Array.isArray(parsed)) continue;
 
-                    return {
-                        "year": year,
-                        "month": month,
-                        "day": day,
-                        "hours": hours,
-                        "minutes": minutes,
-                        "sender": sender
-                    }
+                // destructure
+                const sender = regex_parse_post_meta['sender'](parsed);
+                const year = regex_parse_post_meta['year'](parsed);
+                const month = regex_parse_post_meta['month'](parsed);
+                const day = regex_parse_post_meta['day'](parsed);
+                const hours = regex_parse_post_meta['hours'](parsed);
+                const minutes = regex_parse_post_meta['minutes'](parsed);
+
+                // return
+                return {
+                    "year": year,
+                    "month": month,
+                    "day": day,
+                    "hours": hours,
+                    "minutes": minutes,
+                    "sender": sender
                 }
 
-            } catch (err) { }
-        }
-
-
-        // ------- LOCALE #2 -------
-        const d2 = text.matchAll(regex_parse_post_meta_2);
-        
-        if (d2 !== undefined && d2 !== null) {
-            try {
-                let meta_parsed = [...d2];
-                meta_parsed = [...meta_parsed[0]];
-
-                if (meta_parsed !== undefined && meta_parsed !== null && Array.isArray(meta_parsed)) {
-
-                    // destructure
-                    const sender = meta_parsed[6];
-                    const year = +meta_parsed[5];
-                    const month = +meta_parsed[4];
-                    const day = +meta_parsed[3];
-                    const hours = +meta_parsed[1];
-                    const minutes = +meta_parsed[2];
-
-                    return {
-                        "year": year,
-                        "month": month,
-                        "day": day,
-                        "hours": hours,
-                        "minutes": minutes,
-                        "sender": sender
-                    }
-                }
-            } catch (err) { }
+            } catch(err) {}
         }
 
         return null;
@@ -184,7 +180,7 @@ export class Extractor {
      * Optional:
      *  already_extracted_post_ids : set of post ids we are not interested in
      */
-    async extract_posts(html_str, already_extracted_post_ids){
+    async extract_posts(html_str, already_extracted_post_ids = new Set()){
 
         // init
         let dataframe = [];
@@ -196,9 +192,7 @@ export class Extractor {
         const post_ids = this.get_post_ids(html_str_cleaned);
 
         // check
-        if (post_ids === undefined || post_ids === null || !Array.isArray(post_ids)) return {
-            'posts': dataframe
-        };
+        if (post_ids === undefined || post_ids === null || !Array.isArray(post_ids)) return dataframe;
 
         // extract posts
         const posts = post_ids.map(post_id => this.get_post_by_id(html_str_cleaned, post_id)).filter(d => d !== undefined && d !== null);
@@ -233,8 +227,6 @@ export class Extractor {
             dataframe.push(datum);
         }
 
-        return {
-            'posts': dataframe
-        };
+        return dataframe;
     }
 }

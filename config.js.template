@@ -1,0 +1,19 @@
+// GENERAL
+export const APP_NAME = "Seshat";
+
+// SERVER
+export const API_PORT = 8080;
+export const ENDPOINT_PROMPT = `http://localhost:${API_PORT}/seshat/prompt`;
+
+// SENDERS AUTHORIZED
+export const SENDERS_AUTHORIZED = ['Alice', 'Bob'];
+
+// OPENAI
+export const endpoint = "https://api.openai.com/v1/engines/text-davinci-003/completions";
+export const model = 'text-davinci-003';
+export const temperature = 0.7;
+export const max_tokens = 256;
+export const OPENAI_API_KEY = '';
+
+// SCRAPER
+export const REFRESH_MS = 2000;

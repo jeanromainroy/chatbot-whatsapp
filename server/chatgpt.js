@@ -1,7 +1,7 @@
 'use strict';
 
 // config
-import { OPENAI_API_KEY, max_tokens, temperature, endpoint } from './config.js';
+import { OPENAI_API_KEY, max_tokens, temperature, endpoint } from '../config.js';
 
 
 export async function run(prompt){
