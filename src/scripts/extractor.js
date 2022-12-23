@@ -1,7 +1,7 @@
 "use strict"
 
 // import
-import { perform_regex, clean_html, clean_text } from './helper.js';
+import { perform_regex, clean_html, clean_text } from '../../libs/strings.js';
 
 // regex
 const regex_post_ids = new RegExp(`data-id="(.*?)"`, 'g');

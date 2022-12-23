@@ -3,6 +3,9 @@
 // config
 import { OPENAI_API_KEY, max_tokens, temperature, endpoint } from '../config.js';
 
+// libs
+import { clean_text } from '../libs/strings.js';
+
 
 export async function run(prompt){
 
@@ -32,5 +35,14 @@ export async function run(prompt){
         return null;
     }
 
-    return results[0];
+    // extract first response
+    let text = results[0];
+
+    // check
+    if (text === undefined || text === null || typeof(text) !== 'string') return null;
+
+    // clean
+    text = clean_text(text);
+
+    return text;
 }

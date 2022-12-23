@@ -1,58 +1,6 @@
 'use strict';
 
 
-// helper function to post image
-export async function request_POST(url, body) {
-
-    // params
-    const opts = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-    }
-
-    // send request
-    let response = null;
-    try {
-        response = await fetch(url, opts);
-    } catch(err) {
-        console.error(err);
-        return null;
-    }
-
-    // check status
-    if (response.status !== 200) {
-        console.error('invalid status');
-        return null;
-    }
-
-    // data
-    const data = await response.json();
-
-    // return
-    return data;
-}
-
-
-export async function request_GET(url) {
-
-    // params
-    const opts = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-    }
-
-    // send request
-    const response = await fetch(url, opts);
-
-    // data
-    const data = await response.json();
-
-    // return
-    return data;
-}
-
-
 // helper function to perform a regex match
 export function _perform_regex(html_str, regex) {
     const matches = html_str.matchAll(regex);
@@ -107,6 +55,9 @@ export function clean_text(text) {
     // remove the < >
     text = text.replaceAll(/<.*?>/g, " ")
 
+    // remove all new line
+    text = text.replaceAll("\n", " ");
+
     // remove double whitespaces
     for(let i=0 ; i<5 ; i++){
         text = text.replaceAll("  ", " ");
@@ -120,3 +71,4 @@ export function clean_text(text) {
 
     return text;
 }
+

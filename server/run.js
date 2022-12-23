@@ -12,7 +12,7 @@ import { run as run_chatgpt } from './chatgpt.js';
 const app = express();
 
 // enable parse body
-app.use(express.json({limit: '50mb'}));
+app.use(express.json({limit: '10mb'}));
 
 
 app.post(

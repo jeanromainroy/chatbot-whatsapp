@@ -4,9 +4,9 @@
 import { APP_NAME, ENDPOINT_PROMPT } from '../../config.js';
 
 // import libs
-import { request_POST } from './helper.js';
-import { return_locale_date_now_in_ISO_format } from '../libs/dt.js';
-import { sleep } from '../libs/system.js';
+import { request_POST } from '../../libs/http.js';
+import { return_locale_date_now_in_ISO_format } from '../../libs/dt.js';
+import { sleep } from '../../libs/system.js';
 
 
 export class ChatBot {
