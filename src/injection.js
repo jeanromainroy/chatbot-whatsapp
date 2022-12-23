@@ -61,6 +61,24 @@ async function scrape(){
 }
 
 
+async function clear(){
+
+    // select the textarea
+    const textbox = document.querySelector('footer').querySelector('[role="textbox"]');
+
+    // focus
+    textbox.focus(); 
+
+    // select all 
+    try {
+        document.execCommand("selectAll", false, null);
+        document.execCommand("delete", false, null);
+    } catch (err) {
+        console.error(`${APP_NAME} - exec command not supported`)
+    }
+}
+
+
 async function post(message){
     
     // select the textarea
@@ -96,6 +114,7 @@ async function post(message){
     // check
     if (button === undefined || button === null) {
         console.error(`${APP_NAME} - button not loaded`);
+        clear();
         return;
     }
 
