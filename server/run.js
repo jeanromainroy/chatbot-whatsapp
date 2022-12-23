@@ -35,21 +35,26 @@ app.post(
             return res.status(401).send({ message: 'sender unauthorized' });
         }
 
-        // run
-        // const response = await run_chatgpt(text);
+        // await new Promise(resolve => {
+        //     setTimeout(() => { resolve() }, 300);
+        // })
 
-        // // log
-        // console.log(`Response: ${response}\n`);
-        
         // // success
-        // return res.status(200).send({ message: response })
+        // return res.status(200).send({ message: 'Bnjour salut' })
 
-        await new Promise(resolve => {
-            setTimeout(() => { resolve() }, 300);
-        })
+        // run
+        const response = await run_chatgpt(text);
 
+        // log
+        console.log(`Response: ${response}\n\n`);
+
+        // check
+        if (response === undefined || response === null || typeof(response) !== 'string') {
+            return res.status(401).send({ message: 'response invalid' });
+        }
+        
         // success
-        return res.status(200).send({ message: 'Bnjour salut' })
+        return res.status(200).send({ message: response });
     }
 )
 
