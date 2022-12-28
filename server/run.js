@@ -1,7 +1,7 @@
 'use strict';
 
 // config
-import { API_PORT, SENDERS_AUTHORIZED } from '../config.js';
+import { API_PORT, SENDERS_AUTHORIZED, DEBUG_MODE } from '../config.js';
 
 // libs
 import express from 'express';
@@ -34,6 +34,20 @@ app.post(
         if (!SENDERS_AUTHORIZED.includes(sender)) {
             return res.status(401).send({ message: 'sender unauthorized' });
         }
+
+
+        // ------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------
+
+        if (DEBUG_MODE) {
+            return res.status(200).send({ message: 'ACK' });
+        }
+
+        // ------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------
+
 
         // run
         const response = await run_chatgpt(text);

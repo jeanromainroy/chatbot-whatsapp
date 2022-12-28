@@ -1,6 +1,5 @@
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
-import json from '@rollup/plugin-json';
 
 
 export default [
@@ -23,7 +22,7 @@ export default [
             format: "iife",
             file: "extension/public/build/injection.js",
         },
-        plugins: [json({ compact: true }), resolve(), commonjs()],
+        plugins: [resolve(), commonjs()],
         watch: {
             clearScreen: false,
         },
