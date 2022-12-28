@@ -71,3 +71,15 @@ Type something in the conversation and look at the terminal to see if the server
 By default the chatbot will refuse to chat with unknown numbers. Set the authorized contact names in the [config file](./config.js).
 
     export const SENDERS_AUTHORIZED = ['Alice', 'Bob'];
+
+
+## Dev
+
+Whatsapp displays the message datetime differently depending on the locale. Make sure your locale is supported in the [extractor script](./extension/src/scripts/extractor.js)
+        
+    const regexes_parse_post_meta = [
+        { // [hh:mm (am/pm), dd/mm/yyyy] Alice:
+            "regex": /\[(.*?):(.*?) (.*?), (.*?)\/(.*?)\/(.*?)\] (.*?):/g,
+            ...
+        }
+    ]

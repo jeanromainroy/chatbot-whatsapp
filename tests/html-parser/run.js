@@ -6,10 +6,8 @@ const path_test_2 = './tests/html-parser/locale2.html';
 
 // libs
 import { readFileSync } from 'fs';
-import { Extractor } from '../../src/scripts/extractor.js';
+import { extract_posts } from '../../extension/src/scripts/extractor.js';
 
-// init instance of extractor
-const extractor = new Extractor();
 
 async function main() {
 
@@ -18,10 +16,10 @@ async function main() {
     const test_2 = readFileSync(path_test_2, 'utf8');
 
     // extract posts
-    const posts_1 = await extractor.extract_posts(test_1);
+    const posts_1 = extract_posts(test_1);
     console.log(posts_1[0]);
 
-    const posts_2 = await extractor.extract_posts(test_2);
+    const posts_2 = extract_posts(test_2);
     console.log(posts_2[0]);
 }
 

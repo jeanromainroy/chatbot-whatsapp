@@ -2,16 +2,8 @@
 
 // import scripts
 import { APP_NAME } from '../../config.js';
-import { Extractor } from './scripts/extractor.js';
+import { extract_posts } from './scripts/extractor.js';
 import { sleep } from './libs/system.js';
-
-// process var
-let already_extracted_post_ids = new Set();
-let nbr_of_posts_scraped = 0;
-let conversation = [];
-
-// init instance of extractor
-const extractor = new Extractor();
 
 
 function get_current_url() {
@@ -19,45 +11,30 @@ function get_current_url() {
 }
 
 
-async function scrape(){
+function get_most_recent_post(){
 
     // get url
     const url = window.location.href;
 
     // check
-    if (!url.includes('web.whatsapp.com')) return;
+    if (!url.includes('web.whatsapp.com')) return null;
 
     // grab page HTML
     const html_str = document.body.innerHTML;
 
     // extract posts
-    const posts = await extractor.extract_posts(html_str, already_extracted_post_ids);
+    const posts = extract_posts(html_str);
 
     // check
-    if (posts === undefined || posts === null || !Array.isArray(posts)) return;
+    if (posts === undefined || posts === null || !Array.isArray(posts) || posts.length === 0) return null;
 
-    // go through posts
-    posts.forEach(post => {
+    // set most recent post
+    const most_recent_post = posts[posts.length-1];
 
-        // if already extracted, skip
-        if(already_extracted_post_ids.has(post.post_id)) return;
+    // check
+    if (most_recent_post === undefined || most_recent_post === null || typeof(most_recent_post) !== 'object') return null;
 
-        // add post id to already extracted
-        already_extracted_post_ids.add(post.post_id)
-
-        // add post to conversation
-        conversation.push(post)
-    })
-
-    // if we now have a different number of posts
-    if(Object.keys(conversation).length !== nbr_of_posts_scraped){
-
-        // update nbr value
-        nbr_of_posts_scraped = conversation.length;
-
-        // inform user
-        console.log(`${APP_NAME} - Number of posts scraped = ${nbr_of_posts_scraped}`);
-    }
+    return most_recent_post;
 }
 
 
@@ -132,17 +109,12 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                 sendResponse(get_current_url());
                 break;
             
-            case "startScrape":
-                // console.log(`${APP_NAME} - scraping`)
-                scrape();
-                break;
-            
-            case "requestConversation": 
-                // console.log(`${APP_NAME} - gpt requested`);
-                sendResponse(conversation);
+            case "getMostRecentPost": 
+                console.log(`${APP_NAME} - chat requested`);
+                sendResponse(get_most_recent_post());
                 break;
 
-            case "respondWith": 
+            case "postMessage": 
                 console.log(`${APP_NAME} - response received`);
                 post(message.data);
                 break;

@@ -6,7 +6,6 @@ import { APP_NAME, ENDPOINT_PROMPT } from '../../../config.js';
 // import libs
 import { request_POST } from '../libs/http.js';
 import { return_locale_date_now_in_ISO_format } from '../libs/dt.js';
-import { sleep } from '../libs/system.js';
 
 
 export class ChatBot {
@@ -63,30 +62,20 @@ export class ChatBot {
     }
 
 
-    async request_conversation(){
-
-        // trigger scrape
-        try {
-            await this.sendMessage("startScrape");
-        } catch (err) { 
-            console.error(err);
-            return null;
-        }
-
-        // sleep
-        await sleep(300);
+    async request_most_recent_post(){
 
         // request conversation from injected script
         let response = null;
         try {
-            response = await this.sendMessage('requestConversation');
+            response = await this.sendMessage('getMostRecentPost');
         } catch (err) {
             console.error(err);
             return null;
         }
 
         // check
-        if (response === undefined || response === null || !Array.isArray(response)) return null;
+        if (response === undefined || response === null || typeof(response) !== 'object' || 
+            response['post_id'] === undefined || response['post_id'] === null) return null;
 
         // valid
         return response;
@@ -102,45 +91,50 @@ export class ChatBot {
         // set flag
         this.running = true;
 
-        // request conversation
-        const conversation = await this.request_conversation();
+        // request most recent post
+        const post = await this.request_most_recent_post();
 
         // check
-        if (conversation === null) {
+        if (post === null) {
             this.running = false;
             return;
         }
 
-        // append
-        for (const post of conversation){
+        // destructure
+        const { post_id, sender, text } = post;
 
-            // destructure
-            const { post_id, sender, text } = post;
+        // check if post was published after app checkpoint
+        if(!this.was_post_published_after_checkpoint(post)) {
+            this.running = false;
+            return;
+        }
 
-            // check if post was published after app checkpoint
-            if(!this.was_post_published_after_checkpoint(post)) continue;
+        // check if post has already been processed
+        if (this.has_post_already_been_processed(post)) {
+            this.running = false;
+            return;
+        }
 
-            // check if post has already been processed
-            if (this.has_post_already_been_processed(post)) continue;
+        // add
+        this.post_ids_processed.add(post_id);
 
-            // add
-            this.post_ids_processed.add(post_id);
+        // build body
+        const body = { 'sender': sender, 'text': text };
 
-            // build body
-            const body = { 'sender': sender, 'text': text };
+        // send to server
+        const response = await request_POST(ENDPOINT_PROMPT, body);
 
-            // send to server
-            const response = await request_POST(ENDPOINT_PROMPT, body);
+        // check
+        if (response === null) {
+            this.running = false;
+            return;
+        }
 
-            // check
-            if (response === null) continue;
-
-            // log
-            try {
-                await this.sendMessage("respondWith", response['message']);
-            } catch (err) {
-                console.error(err);
-            }
+        // log
+        try {
+            await this.sendMessage("postMessage", response['message']);
+        } catch (err) {
+            console.error(err);
         }
 
         // set flag
