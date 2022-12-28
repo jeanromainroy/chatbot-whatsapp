@@ -1,7 +1,7 @@
 'use strict';
 
 // import libs
-import { run } from '../../server/chatgpt.js';
+import { run } from '../../server/openai.js';
 
 
 function parse_args(args){

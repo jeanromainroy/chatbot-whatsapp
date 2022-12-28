@@ -5,7 +5,7 @@ import { API_PORT, SENDERS_AUTHORIZED, DEBUG_MODE } from '../config.js';
 
 // libs
 import express from 'express';
-import { run as run_chatgpt } from './chatgpt.js';
+import { run as run_gpt } from './openai.js';
 
 
 // instantiate express server
@@ -50,7 +50,7 @@ app.post(
 
 
         // run
-        const response = await run_chatgpt(text);
+        const response = await run_gpt(text);
 
         // log
         console.log(`Response: ${response}\n\n`);

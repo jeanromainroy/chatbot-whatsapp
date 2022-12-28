@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "rollup -c",
-    "start": "node server/run.js"
+    "start": "node --no-warnings server/run.js"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.0",

@@ -22,7 +22,7 @@ export async function request_POST(url, body) {
 
     // check status
     if (response.status !== 200) {
-        console.error('invalid status');
+        console.error(response.statusText);
         return null;
     }
 
