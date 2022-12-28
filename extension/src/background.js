@@ -1,13 +1,13 @@
 'use strict';
 
 // import config
-import { REFRESH_MS } from '../../config.js';
+import { APP_NAME, REFRESH_MS } from '../../config.js';
 
 // import libs
 import { ChatBot } from './scripts/chatbot.js';
 
 // process var
-let already_started = false;
+let active_tab_ids = new Set();
 
 
 // helper function to send messages to injected scripts
@@ -16,22 +16,13 @@ async function sendMessage(tabId, messageType, data = null){
 }
 
 
-chrome.tabs.onUpdated.addListener(async function(tabId) {
-
-    // check flag
-    if (already_started) return;
-
-    // page url
-    const url = await sendMessage(tabId, "currentPage");
+async function start(tabId) {
 
     // check
-    if (url === undefined || url === null) return;
+    if (active_tab_ids.has(tabId)) return;
 
-    // check if supported
-    if(!url.includes('web.whatsapp.com')) return;
-
-    // set flag
-    already_started = true;
+    // add
+    active_tab_ids.add(tabId);
 
     // init bot
     const chatbot = new ChatBot(tabId);
@@ -43,4 +34,17 @@ chrome.tabs.onUpdated.addListener(async function(tabId) {
         await chatbot.run();
 
     }, REFRESH_MS)
+}
+
+
+chrome.tabs.onUpdated.addListener(async function(tabId) {
+
+    // page url
+    const url = await sendMessage(tabId, "currentPage");
+
+    // check
+    if (url === undefined || url === null || !url.includes('web.whatsapp.com')) return;
+
+    // start chatbot
+    start(tabId);
 });
