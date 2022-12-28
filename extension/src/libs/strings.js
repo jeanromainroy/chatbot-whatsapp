@@ -60,9 +60,6 @@ export function clean_text(text) {
         text = text.replaceAll("  ", " ");
     }
 
-    // remove special characters
-    text = text.replaceAll(/"/g, '');
-
     // trim
     text = text.trim();
 

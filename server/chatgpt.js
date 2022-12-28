@@ -7,24 +7,13 @@ import { OPENAI_API_KEY, max_tokens, temperature, endpoint } from '../config.js'
 // helper function to clean text of html artefacts
 function clean_text(text) {
 
-    // replace
-    text = text.replaceAll(/…/g, "");
-
-    // remove the < >
-    text = text.replaceAll(/<.*?>/g, " ")
-
     // remove all new line
     text = text.replaceAll("\n", " ");
 
-    // remove double whitespaces
-    for(let i=0 ; i<5 ; i++){
-        text = text.replaceAll("  ", " ");
-    }
-
-    // remove special characters
-    text = text.replaceAll(/"/g, '');
+    // remove whatsapp special styling characters
     text = text.replaceAll(/\*/g, '');
     text = text.replaceAll(/\_/g, '');
+    text = text.replaceAll(/\`/g, '');
 
     // trim
     text = text.trim();
