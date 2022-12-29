@@ -99,6 +99,12 @@ function insert_textbox(message) {
 
     try {
 
+        // select all 
+        if(!document.execCommand("selectAll", false, null)) success = false;
+        
+        // cut
+        if(success && !document.execCommand("cut", false, null)) success = false;
+
         // insert text 
         if(!document.execCommand("insertText", false, message)) success = false;
 
@@ -180,7 +186,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
             case "acknowledge": 
                 console.log(`${APP_NAME} - acknowledgement requested`);
-                submit(MSG_ACK);
+                insert_textbox('ack');
                 break;
 
             default:

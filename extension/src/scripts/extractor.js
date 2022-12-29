@@ -4,10 +4,10 @@
 import { perform_regex, clean_html, clean_text } from '../libs/strings.js';
 
 // regex
-const regex_post_ids = new RegExp(`data-id\s*=\s*['"]([^'"]*)['"]`, 'g');
-const regex_post_by_id = (post_id) => { return new RegExp(`<div[^>]*data-id\s*=\s*['"]${post_id}['"][^>]*>.*?</div></div></div></div></div>`, 'g') };
+const regex_post_ids = new RegExp(`data-id*=*['"]([^'"]*)['"]`, 'g');
+const regex_post_by_id = (post_id) => { return new RegExp(`<div[^>]*data-id*=*['"]${post_id}['"][^>]*>.*?</div></div></div></div></div>`, 'g') };
 const regex_post_text = new RegExp(`<span>(.*?)</span>`, 'g');
-const regex_post_meta = new RegExp(`data-pre-plain-text\s*=\s*['"](.*?)['"]`, 'g');
+const regex_post_meta = new RegExp(`data-pre-plain-text*=*['"](.*?)['"]`, 'g');
 const includes_message_in = ' message-in ';
 const includes_message_out = ' message-out ';
 
