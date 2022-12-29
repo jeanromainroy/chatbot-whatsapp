@@ -88,6 +88,9 @@ function clear_textbox() {
 
 function insert_textbox(message) {
 
+    // clear
+    clear_textbox();
+
     // select the textarea
     const textbox = document.querySelector('footer').querySelector('[role="textbox"]');
 
@@ -98,13 +101,7 @@ function insert_textbox(message) {
     let success = true;
 
     try {
-
-        // select all 
-        if(!document.execCommand("selectAll", false, null)) success = false;
         
-        // cut
-        if(success && !document.execCommand("cut", false, null)) success = false;
-
         // insert text 
         if(!document.execCommand("insertText", false, message)) success = false;
 
