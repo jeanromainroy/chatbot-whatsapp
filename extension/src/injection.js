@@ -5,9 +5,6 @@ import { APP_NAME } from '../../config.js';
 import { extract_posts } from './scripts/extractor.js';
 import { sleep } from './libs/system.js';
 
-// MESSAGES
-const MSG_ACK = 'Please wait as we process your request.';
-
 
 function is_whatsapp() {
     const url = window.location.href;
@@ -101,7 +98,7 @@ function insert_textbox(message) {
     let success = true;
 
     try {
-        
+
         // insert text 
         if(!document.execCommand("insertText", false, message)) success = false;
 
