@@ -20,14 +20,17 @@ export async function request_POST(url, body) {
         return null;
     }
 
+    // parse response
+    let data = null;
+    try {
+        data = await response.json();
+    } catch(err) {}
+
     // check status
     if (response.status !== 200) {
-        console.error(response.statusText);
+        console.error('Request failed:', data);
         return null;
     }
-
-    // data
-    const data = await response.json();
 
     // return
     return data;

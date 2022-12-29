@@ -5,7 +5,7 @@
 // -------------------------------------
 
 // config
-import { ENDPOINT_PROMPT, SENDERS_AUTHORIZED } from '../../config.js';
+import { ENDPOINT_PROMPT, ENDPOINT_AUTHORIZED, SENDERS_AUTHORIZED } from '../../config.js';
 
 // libs
 import { request_POST } from '../../extension/src/libs/http.js';
@@ -21,13 +21,10 @@ async function main() {
     const body = { 'sender': SENDERS_AUTHORIZED[0], 'text': sentence };
 
     // send to server
-    const response = await request_POST(ENDPOINT_PROMPT, body);
+    const response = await request_POST(ENDPOINT_AUTHORIZED, body);
 
     // check
-    if (response === null) { 
-        console.error('ERROR: could not reach server') 
-        process.exit(0);
-    }
+    if (response === null) process.exit(0);
 
     // log
     console.log(response);
@@ -35,7 +32,6 @@ async function main() {
     // exit
     process.exit(0);
 }
-
 
 // run
 main();

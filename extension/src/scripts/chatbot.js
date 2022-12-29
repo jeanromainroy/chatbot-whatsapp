@@ -62,12 +62,12 @@ export class ChatBot {
     }
 
 
-    async request_most_recent_post(){
+    async request_last_post(){
 
         // request conversation from injected script
         let response = null;
         try {
-            response = await this.sendMessage('getMostRecentPost');
+            response = await this.sendMessage('getLastPostReceived');
         } catch (err) {
             console.error(err);
             return null;
@@ -92,7 +92,7 @@ export class ChatBot {
         this.running = true;
 
         // request most recent post
-        const post = await this.request_most_recent_post();
+        const post = await this.request_last_post();
 
         // check
         if (post === null) {
@@ -115,8 +115,15 @@ export class ChatBot {
             return;
         }
 
-        // add
+        // add to processed ids
         this.post_ids_processed.add(post_id);
+
+        // acknowledge reception of message
+        try {
+            await this.sendMessage("acknowledge");
+        } catch (err) {
+            console.error(err);
+        }
 
         // build body
         const body = { 'sender': sender, 'text': text };
@@ -132,7 +139,7 @@ export class ChatBot {
 
         // log
         try {
-            await this.sendMessage("postMessage", response['message']);
+            await this.sendMessage("submitPost", response['message']);
         } catch (err) {
             console.error(err);
         }

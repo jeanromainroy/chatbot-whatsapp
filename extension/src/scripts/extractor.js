@@ -4,10 +4,12 @@
 import { perform_regex, clean_html, clean_text } from '../libs/strings.js';
 
 // regex
-const regex_post_ids = new RegExp(`data-id="(.*?)"`, 'g');
-const regex_post_by_id = (post_id) => { return new RegExp(`data-id="${post_id}".*?>.*?</div></div></div></div></div>`, 'g') };
+const regex_post_ids = new RegExp(`data-id\s*=\s*['"]([^'"]*)['"]`, 'g');
+const regex_post_by_id = (post_id) => { return new RegExp(`<div[^>]*data-id\s*=\s*['"]${post_id}['"][^>]*>.*?</div></div></div></div></div>`, 'g') };
 const regex_post_text = new RegExp(`<span>(.*?)</span>`, 'g');
-const regex_post_meta = new RegExp(`data-pre-plain-text="(.*?)"`, 'g');
+const regex_post_meta = new RegExp(`data-pre-plain-text\s*=\s*['"](.*?)['"]`, 'g');
+const includes_message_in = ' message-in ';
+const includes_message_out = ' message-out ';
 
 const regexes_parse_post_meta = [
     {   // [hh:mm (am/pm), dd/mm/yyyy] Alice:
@@ -70,7 +72,7 @@ function get_post_by_id(html_str, post_id) {
 }
 
 
-function get_text(html_str_post) {
+function get_post_text(html_str_post) {
     
     // run regex
     const matching_strings = perform_regex(html_str_post, regex_post_text);
@@ -92,6 +94,41 @@ function get_text(html_str_post) {
 
     return texts
 }
+
+
+function get_post_meta(html_str_post) {
+    
+    // run regex
+    const matching_strings = perform_regex(html_str_post, regex_post_meta);
+
+    // validate
+    if (matching_strings.length === 0) return null;
+
+    // grab first value
+    const texts = matching_strings.map(d => d[1]);
+
+    // check
+    if (texts.length !== 1) return null;
+
+    // clean
+    let text = clean_text(texts[0]);
+
+    // trim
+    text = text.trim();
+
+    // parse 
+    const meta_parsed = parse_meta(text);
+
+    return meta_parsed;
+}
+
+
+function get_post_direction(html_str_post) {
+    if (html_str_post.includes(includes_message_in)) return 'in';
+    if (html_str_post.includes(includes_message_out)) return 'out';
+    return null;
+}
+
 
 
 function parse_meta(text){
@@ -142,32 +179,6 @@ function parse_meta(text){
 }
 
 
-function get_post_meta(html_str_post) {
-    
-    // run regex
-    const matching_strings = perform_regex(html_str_post, regex_post_meta);
-
-    // validate
-    if (matching_strings.length === 0) return null;
-
-    // grab first value
-    const texts = matching_strings.map(d => d[1]);
-
-    // check
-    if (texts.length !== 1) return null;
-
-    // clean
-    let text = clean_text(texts[0]);
-
-    // trim
-    text = text.trim();
-
-    // parse 
-    const meta_parsed = parse_meta(text);
-
-    return meta_parsed;
-}
-
 
 /**
  * Returns a list of dict with all the posts for a given html string
@@ -210,12 +221,14 @@ export function extract_posts(html_str){
         // we require meta data
         if(metadata === undefined || metadata === null) return;
 
-        // extract text
-        const text = get_text(post);
+        // extract other attributes
+        const text = get_post_text(post);
+        const direction = get_post_direction(post);
         
         // set attributes
         datum['post_id'] = post_id;
         datum['text'] = text;
+        datum['direction'] = direction;
         Object.keys(metadata).forEach(key => { datum[key] = metadata[key]});
 
         // push to dataframe

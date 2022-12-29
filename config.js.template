@@ -17,6 +17,3 @@ export const OPENAI_API_KEY = '';
 
 // SCRAPER
 export const REFRESH_MS = 2000;
-
-// DEV 
-export const DEBUG_MODE = false;

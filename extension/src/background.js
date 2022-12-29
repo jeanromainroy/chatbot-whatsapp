@@ -1,7 +1,7 @@
 'use strict';
 
 // import config
-import { APP_NAME, REFRESH_MS } from '../../config.js';
+import { REFRESH_MS } from '../../config.js';
 
 // import libs
 import { ChatBot } from './scripts/chatbot.js';
@@ -40,10 +40,10 @@ async function start(tabId) {
 chrome.tabs.onUpdated.addListener(async function(tabId) {
 
     // page url
-    const url = await sendMessage(tabId, "currentPage");
+    const is_whatsapp = await sendMessage(tabId, "isWhatsApp");
 
     // check
-    if (url === undefined || url === null || !url.includes('web.whatsapp.com')) return;
+    if (is_whatsapp === undefined || is_whatsapp === null || is_whatsapp !== true) return;
 
     // start chatbot
     start(tabId);

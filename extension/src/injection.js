@@ -6,39 +6,53 @@ import { extract_posts } from './scripts/extractor.js';
 import { sleep } from './libs/system.js';
 
 
-function get_current_url() {
-    return window.location.href;
+function is_whatsapp() {
+    const url = window.location.href;
+    return url.includes('web.whatsapp.com');
 }
 
 
-function get_most_recent_post(){
-
-    // get url
-    const url = window.location.href;
-
-    // check
-    if (!url.includes('web.whatsapp.com')) return null;
+function read_all() {
 
     // grab page HTML
-    const html_str = document.body.innerHTML;
+    let html_str = null;
+    try {
+        html_str = document.body.innerHTML;
+    } catch(err) {
+        console.error(`${APP_NAME} - could not grab document body`)
+        return null;
+    }
 
-    // extract posts
+    // extract posts from html
     const posts = extract_posts(html_str);
 
     // check
     if (posts === undefined || posts === null || !Array.isArray(posts) || posts.length === 0) return null;
 
-    // set most recent post
-    const most_recent_post = posts[posts.length-1];
+    return posts;
+}
+
+
+function get_last_post_received(){
+
+    // extract posts
+    const posts = read_all();
 
     // check
-    if (most_recent_post === undefined || most_recent_post === null || typeof(most_recent_post) !== 'object') return null;
+    if (posts === null) return null;
 
-    return most_recent_post;
+    // filter by 'received'
+    const posts_received = posts.filter(post => post['direction'] === 'in');
+
+    // check
+    if (posts_received.length === 0) return null;
+
+    // return last posts
+    return posts_received[posts_received.length-1];
 }
 
 
-async function clear(){
+function clear_textbox() {
 
     // select the textarea
     const textbox = document.querySelector('footer').querySelector('[role="textbox"]');
@@ -46,57 +60,99 @@ async function clear(){
     // focus
     textbox.focus(); 
 
-    // select all 
+    // init
+    let success = true;
+
     try {
-        document.execCommand("selectAll", false, null);
-        document.execCommand("cut", false, null);
-    } catch (err) {
-        console.error(`${APP_NAME} - exec command not supported`)
-    }
-}
+        
+        // select all 
+        if(!document.execCommand("selectAll", false, null)) success = false;
+        
+        // cut
+        if(success && !document.execCommand("cut", false, null)) success = false;
 
-
-async function post(message){
-    
-    // select the textarea
-    const textbox = document.querySelector('footer').querySelector('[role="textbox"]');
-
-    // focus
-    textbox.focus(); 
-
-    // paste text
-    // TODO: FIX DEPRECATED
-    let pasted = true;
-    try {
-        if (!document.execCommand("insertText", false, message)) {
-            pasted = false;
-        }
     } catch (err) {
         console.error(err);
-        pasted = false;
+        success = false;
     }
-
-    // check if successful
-    if (!pasted) {
-        console.error(`${APP_NAME} - paste unsuccessful, execCommand not supported`);
-        return;
-    }
-
-    // wait a bit
-    await sleep(500);
-
-    // select the send button
-    const button = document.querySelector('footer').querySelector('button[aria-label="Send"]');
 
     // check
-    if (button === undefined || button === null) {
-        console.error(`${APP_NAME} - button not loaded`);
-        clear();
-        return;
+    if (!success) console.error(`${APP_NAME} - could not clear textbox`);
+
+    return success;
+}
+
+
+function insert_textbox(message) {
+
+    // select the textarea
+    const textbox = document.querySelector('footer').querySelector('[role="textbox"]');
+
+    // focus
+    textbox.focus(); 
+
+    // init
+    let success = true;
+
+    try {
+
+        // insert text 
+        if(!document.execCommand("insertText", false, message)) success = false;
+
+    } catch (err) {
+        console.error(err);
+        success = false;
     }
 
-    // trigger send button
-    button.click();
+    // check
+    if (!success) console.error(`${APP_NAME} - could not insert into textbox`);
+
+    return success;
+}
+
+
+async function send_textbox() {
+
+    // init
+    let success = false;
+
+    // three attempts
+    for (let i=0 ; i<3 ; i++) {
+
+        // wait a bit
+        await sleep(300);
+
+        // set the send button
+        const button = document.querySelector('footer').querySelector('button[aria-label="Send"]');
+        
+        // if button wasn't selected, try again
+        if (button === undefined || button === null) continue;
+
+        // trigger send button
+        button.click();
+
+        // set flag
+        success = true;
+
+        // stop
+        break;
+    }
+
+    // if failed
+    if (!success) {
+        console.error(`${APP_NAME} - button could not be selected`);
+        clear_textbox();
+    }    
+}
+
+
+async function submit(message){
+
+    // insert text
+    if(!insert_textbox(message)) return;
+
+    // submit text
+    await send_textbox();
 }
 
 
@@ -104,23 +160,28 @@ async function post(message){
 // message interface
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         switch(message.type) {
-            case "currentPage":
+            case "isWhatsApp":
                 console.log(`${APP_NAME} - url requested`)
-                sendResponse(get_current_url());
+                sendResponse(is_whatsapp());
                 break;
             
-            case "getMostRecentPost": 
-                console.log(`${APP_NAME} - chat requested`);
-                sendResponse(get_most_recent_post());
+            case "getLastPostReceived": 
+                console.log(`${APP_NAME} - last post requested`);
+                sendResponse(get_last_post_received());
                 break;
 
-            case "postMessage": 
-                console.log(`${APP_NAME} - response received`);
-                post(message.data);
+            case "submitPost": 
+                console.log(`${APP_NAME} - post submission requested`);
+                submit(message.data);
+                break;
+
+            case "acknowledge": 
+                console.log(`${APP_NAME} - acknowledgement requested`);
+                insert_textbox('');
                 break;
 
             default:
-                console.error("Unrecognised message: ", message);
+                console.error(`${APP_NAME} - Unrecognised message: `, message);
         }
     }
 );

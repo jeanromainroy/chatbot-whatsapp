@@ -2,6 +2,8 @@
 
 Served through a browser extension, this chatbot can be used to converse through WhatsApp.
 
+![Demonstration](./varia/client.gif)
+
 
 ## Mise-en-place
 
@@ -66,16 +68,27 @@ To launch the server that will be responding to incomming message. Simply open a
 Type something in the conversation and look at the terminal to see if the server is functionning properly
 
 
-## Whitelist
+## Interlocutor Whitelist
 
 By default the chatbot will refuse to chat with unknown numbers. Set the authorized contact names in the [config file](./config.js).
 
     export const SENDERS_AUTHORIZED = ['Alice', 'Bob'];
 
 
-## Dev
+## Troubleshooting
 
-Whatsapp displays the message datetime differently depending on the locale. Make sure your locale is supported in the [extractor script](./extension/src/scripts/extractor.js)
+If the extractor isn't able to parse the datetime of posts, it might be because your locale isn't supported. 
+
+1. Inspect the HTML of whatsapp web and find the following,
+
+    data-pre-plain-text="*">
+
+2. It should match one of these formats,
+
+    [hh:mm (am/pm), dd/mm/yyyy] NAME_OF_SENDER:
+    [hh:mm, dd/mm/yyyy] NAME_OF_SENDER:
+
+3. If it doesn't you will need to add its structure to the [extractor script](./extension/src/scripts/extractor.js)
         
     const regexes_parse_post_meta = [
         { // [hh:mm (am/pm), dd/mm/yyyy] Alice:

@@ -1,7 +1,7 @@
 'use strict';
 
 // config
-import { API_PORT, SENDERS_AUTHORIZED, DEBUG_MODE } from '../config.js';
+import { API_PORT, SENDERS_AUTHORIZED } from '../config.js';
 
 // libs
 import express from 'express';
@@ -13,6 +13,31 @@ const app = express();
 
 // enable parse body
 app.use(express.json({limit: '10mb'}));
+
+// checks if user is allowed to request
+app.post(
+    '/seshat/authorized',
+    async (req, res) => {
+
+        // grab data from body
+        const { sender, text } = req.body;
+
+        // check
+        if (sender === undefined || text === undefined || sender === null || text === null || typeof(sender) !== 'string' || typeof(text) !== 'string') {
+            return res.status(400).send({ message: 'invalid body' })
+        }
+
+        // log
+        console.log(`${sender}: ${text}`);
+
+        // check sender
+        if (!SENDERS_AUTHORIZED.includes(sender)) {
+            return res.status(401).send({ message: 'sender unauthorized' });
+        }
+        
+        return res.status(200).send({ message: 'sender authorized' });
+    }
+)
 
 
 app.post(
@@ -34,20 +59,6 @@ app.post(
         if (!SENDERS_AUTHORIZED.includes(sender)) {
             return res.status(401).send({ message: 'sender unauthorized' });
         }
-
-
-        // ------------------------------------------------------------------------------------
-        // ------------------------------------------------------------------------------------
-        // ------------------------------------------------------------------------------------
-
-        if (DEBUG_MODE) {
-            return res.status(200).send({ message: 'ACK' });
-        }
-
-        // ------------------------------------------------------------------------------------
-        // ------------------------------------------------------------------------------------
-        // ------------------------------------------------------------------------------------
-
 
         // run
         const response = await run_gpt(text);

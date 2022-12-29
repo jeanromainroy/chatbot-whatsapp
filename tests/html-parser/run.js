@@ -17,10 +17,15 @@ async function main() {
 
     // extract posts
     const posts_1 = extract_posts(test_1);
-    console.log(posts_1[0]);
-
     const posts_2 = extract_posts(test_2);
-    console.log(posts_2[0]);
+
+    // filter by 'received'
+    const posts_1_received = posts_1.filter(post => post['direction'] === 'in');
+    const posts_2_received = posts_2.filter(post => post['direction'] === 'in');
+
+    // log
+    console.log(posts_1_received[posts_1_received.length-1]);
+    console.log(posts_2_received[posts_2_received.length-1]);
 }
 
 main();
