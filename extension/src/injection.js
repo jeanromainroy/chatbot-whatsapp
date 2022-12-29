@@ -52,7 +52,7 @@ function get_last_post_received(){
 }
 
 
-function clear_textbox() {
+async function clear_textbox() {
 
     // select the textarea
     const textbox = document.querySelector('footer').querySelector('[role="textbox"]');
@@ -68,6 +68,9 @@ function clear_textbox() {
         // select all 
         if(!document.execCommand("selectAll", false, null)) success = false;
         
+        // wait a bit
+        await sleep(150);
+
         // cut
         if(success && !document.execCommand("cut", false, null)) success = false;
 
@@ -83,10 +86,10 @@ function clear_textbox() {
 }
 
 
-function insert_textbox(message) {
+async function insert_textbox(message) {
 
     // clear
-    clear_textbox();
+    await clear_textbox();
 
     // select the textarea
     const textbox = document.querySelector('footer').querySelector('[role="textbox"]');
@@ -123,7 +126,7 @@ async function send_textbox() {
     for (let i=0 ; i<3 ; i++) {
 
         // wait a bit
-        await sleep(300);
+        await sleep(150);
 
         // set the send button
         const button = document.querySelector('footer').querySelector('button[aria-label="Send"]');
@@ -144,7 +147,7 @@ async function send_textbox() {
     // if failed
     if (!success) {
         console.error(`${APP_NAME} - button could not be selected`);
-        clear_textbox();
+        await clear_textbox();
     }    
 }
 
